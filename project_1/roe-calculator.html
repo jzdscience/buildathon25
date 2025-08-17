@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate ROE Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+        
+        .calculator {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 500px;
+            flex-shrink: 0;
+        }
+        
+        .charts-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            flex: 1;
+            display: none;
+        }
+        
+        .chart-section {
+            margin-bottom: 40px;
+        }
+        
+        .chart-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .calculator {
+                width: 100%;
+            }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin: 20px 0;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .roe-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .roe-label {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #667eea;
+            margin-left: 5px;
+        }
+        
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            width: 200px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            border-radius: 6px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            z-index: 1;
+        }
+        
+        .tooltip:hover::after {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+        <h1>Real Estate ROE Calculator</h1>
+        
+        <form id="roe-form">
+            <div class="input-group">
+                <label for="propertyValue">Property Value ($) <span class="tooltip" data-tooltip="Current market value of the property">ⓘ</span></label>
+                <input type="number" id="propertyValue" placeholder="500000" step="0.01" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="downPayment">Down Payment ($) <span class="tooltip" data-tooltip="Initial cash invested in the property">ⓘ</span></label>
+                <input type="number" id="downPayment" placeholder="100000" step="0.01" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="monthlyRent">Monthly Rental Income ($) <span class="tooltip" data-tooltip="Gross monthly rental income">ⓘ</span></label>
+                <input type="number" id="monthlyRent" placeholder="3000" step="0.01" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="monthlyMortgage">Monthly Mortgage Payment ($) <span class="tooltip" data-tooltip="Principal and interest payment">ⓘ</span></label>
+                <input type="number" id="monthlyMortgage" placeholder="1800" step="0.01" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="monthlyTaxes">Monthly Property Taxes ($) <span class="tooltip" data-tooltip="Monthly property tax amount">ⓘ</span></label>
+                <input type="number" id="monthlyTaxes" placeholder="400" step="0.01" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="monthlyInsurance">Monthly Insurance ($) <span class="tooltip" data-tooltip="Monthly property insurance cost">ⓘ</span></label>
+                <input type="number" id="monthlyInsurance" placeholder="150" step="0.01" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="monthlyMaintenance">Monthly Maintenance/HOA ($) <span class="tooltip" data-tooltip="Estimated monthly maintenance and HOA fees">ⓘ</span></label>
+                <input type="number" id="monthlyMaintenance" placeholder="200" step="0.01" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="closingCosts">Closing Costs ($) <span class="tooltip" data-tooltip="One-time costs when purchasing the property">ⓘ</span></label>
+                <input type="number" id="closingCosts" placeholder="5000" step="0.01" required>
+            </div>
+            
+            <button type="submit" class="calculate-btn">Calculate ROE</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;">
+            <div class="roe-value" id="roe-percentage"></div>
+            <div class="roe-label">Annual Return on Equity</div>
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        </div>
+        
+        <div id="charts-container" class="charts-container">
+            <div class="chart-section">
+                <h3>Monthly Cash Flow Breakdown</h3>
+                <div class="chart-container">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-section">
+                <h3>ROE Benchmark Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="roeBenchmarkChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('roe-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateROE();
+        });
+
+        function calculateROE() {
+            try {
+                const propertyValue = parseFloat(document.getElementById('propertyValue').value);
+                const downPayment = parseFloat(document.getElementById('downPayment').value);
+                const monthlyRent = parseFloat(document.getElementById('monthlyRent').value);
+                const monthlyMortgage = parseFloat(document.getElementById('monthlyMortgage').value);
+                const monthlyTaxes = parseFloat(document.getElementById('monthlyTaxes').value);
+                const monthlyInsurance = parseFloat(document.getElementById('monthlyInsurance').value);
+                const monthlyMaintenance = parseFloat(document.getElementById('monthlyMaintenance').value);
+                const closingCosts = parseFloat(document.getElementById('closingCosts').value);
+
+                if (isNaN(propertyValue) || isNaN(downPayment) || isNaN(monthlyRent) || 
+                    isNaN(monthlyMortgage) || isNaN(monthlyTaxes) || isNaN(monthlyInsurance) || 
+                    isNaN(monthlyMaintenance) || isNaN(closingCosts)) {
+                    throw new Error('Please fill in all fields with valid numbers');
+                }
+
+                if (downPayment > propertyValue) {
+                    throw new Error('Down payment cannot exceed property value');
+                }
+
+                if (downPayment <= 0 || propertyValue <= 0) {
+                    throw new Error('Property value and down payment must be positive');
+                }
+
+                const totalInitialInvestment = downPayment + closingCosts;
+                const annualRentalIncome = monthlyRent * 12;
+                const annualExpenses = (monthlyMortgage + monthlyTaxes + monthlyInsurance + monthlyMaintenance) * 12;
+                const annualNetIncome = annualRentalIncome - annualExpenses;
+                const roe = (annualNetIncome / totalInitialInvestment) * 100;
+
+                document.getElementById('roe-percentage').textContent = roe.toFixed(2) + '%';
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('error').style.display = 'none';
+                document.getElementById('charts-container').style.display = 'block';
+
+                if (roe < 0) {
+                    document.getElementById('roe-percentage').style.color = '#dc3545';
+                } else if (roe < 8) {
+                    document.getElementById('roe-percentage').style.color = '#ffc107';
+                } else {
+                    document.getElementById('roe-percentage').style.color = '#28a745';
+                }
+                
+                createCharts({
+                    monthlyRent,
+                    monthlyMortgage,
+                    monthlyTaxes,
+                    monthlyInsurance,
+                    monthlyMaintenance,
+                    roe,
+                    annualNetIncome
+                });
+
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('result').style.display = 'none';
+                document.getElementById('charts-container').style.display = 'none';
+            }
+        }
+        
+        let cashFlowChart = null;
+        let roeBenchmarkChart = null;
+        
+        function createCharts(data) {
+            if (cashFlowChart) {
+                cashFlowChart.destroy();
+            }
+            if (roeBenchmarkChart) {
+                roeBenchmarkChart.destroy();
+            }
+            
+            const ctx1 = document.getElementById('cashFlowChart').getContext('2d');
+            cashFlowChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Rental Income', 'Mortgage', 'Taxes', 'Insurance', 'Maintenance'],
+                    datasets: [{
+                        data: [
+                            data.monthlyRent,
+                            data.monthlyMortgage,
+                            data.monthlyTaxes,
+                            data.monthlyInsurance,
+                            data.monthlyMaintenance
+                        ],
+                        backgroundColor: [
+                            '#28a745',
+                            '#dc3545',
+                            '#ffc107',
+                            '#17a2b8',
+                            '#6f42c1'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': $' + context.parsed.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            const ctx2 = document.getElementById('roeBenchmarkChart').getContext('2d');
+            roeBenchmarkChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Your Property', 'Stock Market Avg', 'Bond Market Avg', 'Real Estate Avg', 'High Yield Target'],
+                    datasets: [{
+                        label: 'Return on Equity (%)',
+                        data: [data.roe, 10, 4, 8, 15],
+                        backgroundColor: [
+                            data.roe >= 0 ? '#28a745' : '#dc3545',
+                            '#6c757d',
+                            '#6c757d',
+                            '#6c757d',
+                            '#6c757d'
+                        ],
+                        borderColor: [
+                            data.roe >= 0 ? '#1e7e34' : '#bd2130',
+                            '#495057',
+                            '#495057',
+                            '#495057',
+                            '#495057'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

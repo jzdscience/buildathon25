@@ -1,0 +1,202 @@
+# ===================================================
+# SECURITY & PRIVACY - CRITICAL FILES TO EXCLUDE
+# ===================================================
+
+# Environment files with secrets
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+*.env
+
+# API Keys and Secrets
+*secret*
+*credential*
+*token*
+api_keys.txt
+credentials.json
+service-account*.json
+
+# Private Keys and Certificates  
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cert
+id_rsa*
+ssh_host_*
+
+# Database files that may contain sensitive data
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+database.json
+
+# ===================================================
+# APPLICATION SPECIFIC
+# ===================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+.node_repl_history
+.yarn-integrity
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ===================================================
+# USER UPLOADS & GENERATED CONTENT
+# ===================================================
+
+# User uploaded files (may contain sensitive content)
+uploads/
+user_files/
+temp/
+tmp/
+
+# Generated reports and analysis
+reports/
+*_report.html
+*_analysis.html
+*_ownership.html
+graphs/
+*.json
+
+# Generated presentations and documents
+presentations/
+slides/
+*.pdf
+*.pptx
+*.docx
+
+# Cache and temporary files
+.cache/
+.tmp/
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# ===================================================
+# SYSTEM FILES
+# ===================================================
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ===================================================
+# CLOUD & DEPLOYMENT
+# ===================================================
+
+# Google Cloud
+gcloud/
+.gcloud/
+google-cloud-keyfile.json
+
+# Docker
+.dockerignore
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ===================================================
+# PROJECT SPECIFIC EXCLUSIONS
+# ===================================================
+
+# Project 1 - Image uploads
+project_1/uploads/*
+
+# Project 2 - Presentations and audio
+project_2/presentations/*
+project_2/uploads/*
+project_2/audio_files/*
+
+# Project 3 - Database and data
+project_3/data/*
+project_3/backend/data/*
+project_3/backend/*.db
+
+# Project 4 - Generated analysis files
+project_4/repos/*
+project_4/*.db
+project_4/static/ownership_*.html
+project_4/static/report_*.html
+
+# Project 5 - Document uploads and graphs
+project_5/uploads/*
+project_5/graphs/*
+project_5/example_documents/*
+
+# Semi - Email data
+semi/email_data/*
+semi/clusters/*
+
+# Keep example/template files for setup
+!project_2/env.example
+!project_3/backend/env.template
+!**/README.md
+!**/requirements.txt
+!**/package.json

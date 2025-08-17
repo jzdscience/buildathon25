@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox Triage Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-inbox"></i>
+                    <h1>Inbox Triage Assistant</h1>
+                </div>
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-indicator disconnected"></span>
+                    <span class="status-text">Disconnected</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Login Form -->
+            <div class="login-section" id="loginSection">
+                <div class="login-card">
+                    <div class="login-header">
+                        <i class="fas fa-envelope"></i>
+                        <h2>Connect to Gmail</h2>
+                        <p>Enter your Gmail credentials to start organizing your inbox</p>
+                    </div>
+                    
+                    <form class="login-form" id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Gmail Address</label>
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="email" id="username" name="username" placeholder="your.email@gmail.com" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">App Password</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="password" name="password" placeholder="App Password" required>
+                            </div>
+                            <small class="help-text">
+                                <i class="fas fa-info-circle"></i>
+                                Use an App Password from <a href="https://myaccount.google.com/apppasswords" target="_blank">Google Account Settings</a>
+                            </small>
+                        </div>
+                        
+                        <div class="auth-options">
+                            <button type="submit" class="btn btn-primary" id="connectBtn">
+                                <i class="fas fa-plug"></i>
+                                Connect with App Password
+                            </button>
+                            
+                            <div class="divider">
+                                <span>OR</span>
+                            </div>
+                            
+                            <button type="button" class="btn btn-google" id="googleSignInBtn">
+                                <i class="fab fa-google"></i>
+                                Sign in with Google
+                            </button>
+                            
+                            <small class="oauth-help" id="oauthHelp" style="display: none;">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="oauthMessage">Loading OAuth configuration...</span>
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="dashboard-section" id="dashboardSection" style="display: none;">
+                <div class="dashboard-header">
+                    <div class="dashboard-title">
+                        <h2>Email Clusters</h2>
+                        <p>Your last 200 emails organized into actionable groups</p>
+                    </div>
+                    <div class="dashboard-actions">
+                        <button class="btn btn-secondary" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                        <button class="btn btn-outline" id="disconnectBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+
+                <div class="loading-spinner" id="loadingSpinner" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Analyzing your emails...</p>
+                </div>
+
+                <div class="clusters-container" id="clustersContainer">
+                    <!-- Clusters will be dynamically populated here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Archive Confirmation Modal -->
+        <div class="modal-overlay" id="modalOverlay" style="display: none;">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3><i class="fas fa-archive"></i> Archive Cluster</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to archive <strong id="archiveCount">0</strong> emails from:</p>
+                    <p class="cluster-name" id="archiveClusterName"></p>
+                    <small>Emails will be moved to your "All Mail" folder and removed from your inbox.</small>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancelArchive">Cancel</button>
+                    <button class="btn btn-danger" id="confirmArchive">
+                        <i class="fas fa-archive"></i>
+                        Archive Emails
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

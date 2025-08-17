@@ -1,0 +1,36 @@
+# Optimized Dockerfile for Google Cloud Run deployment
+# This version is specifically designed for Cloud Run's environment
+
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install only essential system packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies first (for better caching)
+COPY requirements-simple.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip cache purge
+
+# Copy application code
+COPY app.py .
+COPY templates/ templates/
+COPY start.sh .
+
+# Create necessary directories and set permissions
+RUN mkdir -p uploads && \
+    chmod 777 uploads && \
+    chmod +x start.sh
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Don't use non-root user for now to avoid permission issues
+# Cloud Run handles security at the platform level
+
+# Use the startup script
+CMD ["./start.sh"]

@@ -1,0 +1,22 @@
+# Debug Dockerfile - Simplest possible configuration for Cloud Run
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy requirements and install
+COPY requirements-simple.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application
+COPY app.py .
+COPY templates/ templates/
+
+# Create uploads directory
+RUN mkdir -p uploads
+
+# Set Python to unbuffered mode
+ENV PYTHONUNBUFFERED=1
+
+# Run Flask directly (not production-ready but good for debugging)
+CMD python app.py
+

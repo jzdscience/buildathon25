@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot Search Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: #e8ecff;
+            transform: scale(1.02);
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .example-queries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .example-query {
+            background: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .example-query:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-info {
+            color: #6c757d;
+        }
+
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .clear-btn:hover {
+            background: #c82333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .results-title {
+            font-size: 1.5em;
+            color: #495057;
+        }
+
+        .results-count {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .result-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .result-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-filename {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .confidence-score {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .result-content {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .result-image {
+            flex: 0 0 200px;
+        }
+
+        .result-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-details {
+            flex: 1;
+        }
+
+        .result-text {
+            margin-bottom: 15px;
+        }
+
+        .result-text h4 {
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .result-text p {
+            color: #6c757d;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .ui-elements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .ui-element {
+            background: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: #495057;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .no-results h3 {
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .result-content {
+                flex-direction: column;
+            }
+
+            .result-image {
+                flex: none;
+            }
+
+            .example-queries {
+                justify-content: center;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Screenshot Search Tool</h1>
+            <p>Search your screenshots using natural language for both text content and visual elements</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Upload Section -->
+            <div class="upload-section" id="uploadSection">
+                <h3>📸 Upload Screenshots</h3>
+                <p>Drag and drop your screenshots here, or click to select files</p>
+                <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    Choose Files
+                </button>
+                <button class="upload-btn" id="processBtn" onclick="processFiles()" style="display: none;">
+                    Process Screenshots
+                </button>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-info">
+                    <span id="statusText">No screenshots processed yet</span>
+                </div>
+                <button class="clear-btn" onclick="clearData()">Clear All Data</button>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" 
+                           placeholder="Enter your search query (e.g., 'error message about auth' or 'blue button')">
+                    <button class="search-btn" id="searchBtn" onclick="performSearch()">Search</button>
+                </div>
+                
+                <div class="example-queries">
+                    <div class="example-query" onclick="setQuery('error message')">error message</div>
+                    <div class="example-query" onclick="setQuery('login screen')">login screen</div>
+                    <div class="example-query" onclick="setQuery('blue button')">blue button</div>
+                    <div class="example-query" onclick="setQuery('settings page')">settings page</div>
+                    <div class="example-query" onclick="setQuery('red error dialog')">red error dialog</div>
+                    <div class="example-query" onclick="setQuery('dark theme')">dark theme</div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="messages"></div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <span id="loadingText">Searching...</span>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section hidden">
+                <div class="results-header">
+                    <h2 class="results-title">Search Results</h2>
+                    <span class="results-count" id="resultsCount"></span>
+                </div>
+                <div id="resultsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // File input change
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+            
+            // Enter key for search
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            // Drag and drop
+            const uploadSection = document.getElementById('uploadSection');
+            
+            uploadSection.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadSection.classList.add('dragover');
+            });
+
+            uploadSection.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadSection.classList.remove('dragover');
+            });
+
+            uploadSection.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadSection.classList.remove('dragover');
+                
+                const files = Array.from(e.dataTransfer.files);
+                handleFiles(files);
+            });
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            if (imageFiles.length === 0) {
+                showMessage('Please select valid image files.', 'error');
+                return;
+            }
+
+            uploadedFiles = imageFiles;
+            document.getElementById('processBtn').style.display = 'inline-block';
+            showMessage(`Selected ${imageFiles.length} image files. Click "Process Screenshots" to continue.`, 'success');
+        }
+
+        async function processFiles() {
+            if (uploadedFiles.length === 0) {
+                showMessage('No files selected.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            uploadedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+
+            showLoading('Uploading and processing screenshots...');
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    updateStatus();
+                    document.getElementById('processBtn').style.display = 'none';
+                    uploadedFiles = [];
+                    document.getElementById('fileInput').value = '';
+                } else {
+                    showMessage(result.error || 'Upload failed', 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showMessage('Upload failed: ' + error.message, 'error');
+            }
+        }
+
+        async function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            
+            if (!query) {
+                showMessage('Please enter a search query.', 'error');
+                return;
+            }
+
+            showLoading('Searching screenshots...');
+            hideResults();
+
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        top_k: 5
+                    })
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    displayResults(result);
+                } else {
+                    showMessage(result.error || 'Search failed', 'error');
+                }
+            } catch (error) {
+                hideLoading();
+                showMessage('Search failed: ' + error.message, 'error');
+            }
+        }
+
+        function displayResults(result) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsCount = document.getElementById('resultsCount');
+
+            if (result.results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <h3>No results found</h3>
+                        <p>Try different search terms or upload more screenshots.</p>
+                    </div>
+                `;
+            } else {
+                resultsCount.textContent = `Found ${result.results.length} matches for "${result.query}"`;
+                
+                resultsContainer.innerHTML = result.results.map((item, index) => `
+                    <div class="result-item">
+                        <div class="result-header">
+                            <span class="result-filename">${item.filename}</span>
+                            <span class="confidence-score">${item.confidence_percent}% match</span>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-image">
+                                ${item.image_data ? `<img src="${item.image_data}" alt="${item.filename}">` : '<p>Image preview not available</p>'}
+                            </div>
+                            <div class="result-details">
+                                ${item.ocr_text ? `
+                                    <div class="result-text">
+                                        <h4>📝 Extracted Text</h4>
+                                        <p>${item.ocr_text.substring(0, 200)}${item.ocr_text.length > 200 ? '...' : ''}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                ${item.visual_description ? `
+                                    <div class="result-text">
+                                        <h4>👁️ Visual Description</h4>
+                                        <p>${item.visual_description}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                ${item.ui_elements && item.ui_elements.length > 0 ? `
+                                    <div class="result-text">
+                                        <h4>🎯 UI Elements</h4>
+                                        <div class="ui-elements">
+                                            ${item.ui_elements.map(element => `<span class="ui-element">${element}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            resultsSection.classList.remove('hidden');
+        }
+
+        async function updateStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                const statusText = document.getElementById('statusText');
+                if (status.total_screenshots > 0) {
+                    statusText.textContent = `${status.total_screenshots} screenshots processed and ready for search`;
+                } else {
+                    statusText.textContent = 'No screenshots processed yet';
+                }
+            } catch (error) {
+                console.error('Failed to update status:', error);
+            }
+        }
+
+        async function clearData() {
+            if (!confirm('Are you sure you want to clear all processed data?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/clear');
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    updateStatus();
+                    hideResults();
+                } else {
+                    showMessage(result.error || 'Failed to clear data', 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to clear data: ' + error.message, 'error');
+            }
+        }
+
+        function setQuery(query) {
+            document.getElementById('searchInput').value = query;
+        }
+
+        function showMessage(message, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageClass = type === 'error' ? 'error-message' : 'success-message';
+            
+            messagesDiv.innerHTML = `<div class="${messageClass}">${message}</div>`;
+            
+            setTimeout(() => {
+                messagesDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function showLoading(text) {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('searchBtn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('searchBtn').disabled = false;
+        }
+
+        function hideResults() {
+            document.getElementById('resultsSection').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

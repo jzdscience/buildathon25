@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Codebase Time Machine - Explore Code Evolution{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient text-white py-5">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="fas fa-clock-rotate-left me-3"></i>
+                    Codebase Time Machine
+                </h1>
+                <p class="lead mb-4">
+                    Explore the evolution of any codebase over time. Understand how features, design patterns, 
+                    and architectural decisions have changed, while connecting these changes to business context.
+                </p>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-light btn-lg px-4" onclick="scrollToAnalysis()">
+                        <i class="fas fa-rocket me-2"></i>Start Analysis
+                    </button>
+                    <a href="{{ url_for('demo') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-play me-2"></i>Try Demo
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i class="fas fa-code-branch display-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="fw-bold mb-3">Powerful Code Analysis Features</h2>
+                <p class="text-muted">Understand your codebase like never before</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-git-alt text-primary"></i>
+                        </div>
+                        <h5 class="fw-bold">Git Analysis</h5>
+                        <p class="text-muted">Clone and analyze complete commit history of any Git repository</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-brain text-success"></i>
+                        </div>
+                        <h5 class="fw-bold">AI Queries</h5>
+                        <p class="text-muted">Ask natural language questions about your codebase evolution</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-chart-line text-warning"></i>
+                        </div>
+                        <h5 class="fw-bold">Visualizations</h5>
+                        <p class="text-muted">Interactive charts showing code ownership and complexity trends</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-business-time text-info"></i>
+                        </div>
+                        <h5 class="fw-bold">Business Context</h5>
+                        <p class="text-muted">Connect code changes to business features and decisions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Analysis Section -->
+<section id="analysis" class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-microscope me-2"></i>
+                            Analyze Repository
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="analysisForm">
+                            <div class="mb-4">
+                                <label for="repoUrl" class="form-label fw-bold">
+                                    <i class="fab fa-git-alt me-2"></i>Repository URL
+                                </label>
+                                <input type="url" 
+                                       class="form-control form-control-lg" 
+                                       id="repoUrl" 
+                                       name="repoUrl"
+                                       placeholder="https://github.com/user/repository.git"
+                                       required>
+                                <div class="form-text">
+                                    Enter a public Git repository URL (GitHub, GitLab, etc.)
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="fullAnalysis" name="fullAnalysis">
+                                    <label class="form-check-label fw-bold" for="fullAnalysis">
+                                        <i class="fas fa-cogs me-2"></i>Full Analysis
+                                    </label>
+                                    <div class="form-text">
+                                        Include detailed code metrics and complexity analysis (takes longer)
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-play me-2"></i>
+                                    Start Analysis
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Quick Examples -->
+                        <div class="mt-4">
+                            <h6 class="fw-bold text-muted">Quick Examples:</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-outline-secondary btn-sm" 
+                                        onclick="setExampleRepo('https://github.com/octocat/Hello-World.git')">
+                                    Hello World
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" 
+                                        onclick="setExampleRepo('https://github.com/git/git-reference.git')">
+                                    Git Reference
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" 
+                                        onclick="setExampleRepo('https://github.com/torvalds/linux.git')">
+                                    Linux Kernel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Query Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Ask Questions About Code
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <label for="queryInput" class="form-label fw-bold">
+                                <i class="fas fa-brain me-2"></i>Natural Language Query
+                            </label>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="queryInput" 
+                                       placeholder="e.g., 'Show me how authentication evolved' or 'Who are the main contributors?'">
+                                <button class="btn btn-success" type="button" onclick="submitQuery()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Query Examples -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-muted">Example Questions:</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-outline-success btn-sm" 
+                                        onclick="setExampleQuery('Who are the main contributors?')">
+                                    Contributors
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" 
+                                        onclick="setExampleQuery('Show me how authentication evolved')">
+                                    Authentication
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" 
+                                        onclick="setExampleQuery('What patterns were introduced?')">
+                                    Patterns
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Query Response -->
+                        <div id="queryResponse" class="mt-3" style="display: none;">
+                            <div class="alert alert-info">
+                                <h6 class="fw-bold">
+                                    <i class="fas fa-lightbulb me-2"></i>Response:
+                                </h6>
+                                <div id="queryResult"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function scrollToAnalysis() {
+    document.getElementById('analysis').scrollIntoView({ 
+        behavior: 'smooth' 
+    });
+}
+
+function setExampleRepo(url) {
+    document.getElementById('repoUrl').value = url;
+}
+
+function setExampleQuery(query) {
+    document.getElementById('queryInput').value = query;
+}
+
+function showDocumentation() {
+    new bootstrap.Modal(document.getElementById('docModal')).show();
+}
+</script>
+{% endblock %}

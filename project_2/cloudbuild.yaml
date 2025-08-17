@@ -1,0 +1,56 @@
+# Google Cloud Build configuration
+# This file automates the build and deployment process to Cloud Run
+
+steps:
+  # Build the container image using Cloud Run optimized Dockerfile
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-f', 'Dockerfile.cloudrun', '-t', 'gcr.io/$PROJECT_ID/voice-to-slide-generator:$COMMIT_SHA', '.']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/voice-to-slide-generator:$COMMIT_SHA']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'voice-to-slide-generator'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/voice-to-slide-generator:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '300'
+      - '--max-instances'
+      - '10'
+      - '--min-instances'
+      - '0'
+      - '--set-env-vars'
+      - 'NODE_ENV=production'
+      - '--update-secrets'
+      - 'OPENAI_API_KEY=openai-api-key:latest'
+
+# Substitution variables
+substitutions:
+  _REGION: us-central1  # Default region, can be overridden
+
+# Build timeout
+timeout: 1200s
+
+# Options
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+# Images to be pushed to Container Registry
+images:
+  - 'gcr.io/$PROJECT_ID/voice-to-slide-generator:$COMMIT_SHA'

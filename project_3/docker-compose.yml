@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  engagement-pulse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: engagement-pulse-app
+    restart: unless-stopped
+    environment:
+      # Slack Configuration - Set these in your .env file
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      
+      # Database
+      - DATABASE_URL=sqlite:///./data/engagement_pulse.db
+      
+      # API Configuration
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost
+      
+      # Sentiment Analysis
+      - SENTIMENT_UPDATE_INTERVAL_MINUTES=60
+      - BURNOUT_THRESHOLD=-0.3
+      - WARNING_THRESHOLD=-0.5
+      
+      # Security
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist database
+      - ./data:/app/data
+      # Mount environment file if it exists
+      - ./.env:/app/.env:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - engagement-pulse-network
+
+  # Optional: Nginx reverse proxy for production
+  nginx:
+    image: nginx:alpine
+    container_name: engagement-pulse-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - engagement-pulse
+    networks:
+      - engagement-pulse-network
+    profiles:
+      - production
+
+networks:
+  engagement-pulse-network:
+    driver: bridge
+
+volumes:
+  engagement_data:
+    driver: local
+

@@ -1,0 +1,22 @@
+# Simplest possible Dockerfile for Cloud Run - Flask only (no gunicorn)
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install Flask and dependencies
+RUN pip install flask==2.3.3 werkzeug==2.3.7 Pillow==10.0.0
+
+# Copy application
+COPY app.py .
+COPY templates/ templates/
+
+# Create uploads directory
+RUN mkdir -p uploads
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_APP=app.py
+
+# Run Flask directly - Cloud Run will set PORT env var
+CMD ["python", "app.py"]
+

@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Codebase Time Machine{% endblock %}
+
+{% block content %}
+<!-- Results Header -->
+<section class="bg-success text-white py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="fw-bold mb-2">
+                    <i class="fas fa-check-circle me-3"></i>
+                    Analysis Complete
+                </h1>
+                <p class="mb-0">Repository: <code>{{ results.repository }}</code></p>
+                <small>Analyzed on {{ results.timestamp }}</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Results Overview -->
+<section class="py-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <div class="display-6 text-primary fw-bold">{{ results.commit_count }}</div>
+                        <div class="text-muted">Total Commits</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <div class="display-6 text-success fw-bold">{{ results.file_changes_count }}</div>
+                        <div class="text-muted">File Changes</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <div class="display-6 text-warning fw-bold">
+                            {% if results.commit_analysis and results.commit_analysis.total_commits %}
+                                {{ (results.commit_analysis.top_keywords | length) if results.commit_analysis.top_keywords else 0 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="text-muted">Top Keywords</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <div class="display-6 text-info fw-bold">
+                            {% if results.full_analysis %}
+                                <i class="fas fa-check"></i>
+                            {% else %}
+                                <i class="fas fa-times"></i>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted">Full Analysis</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Query Section -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Ask Questions About This Repository
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <div class="input-group input-group-lg">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="resultQueryInput" 
+                                       placeholder="Ask about this repository...">
+                                <button class="btn btn-primary" type="button" onclick="submitResultQuery()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <button class="btn btn-outline-primary btn-sm" 
+                                    onclick="setResultQuery('Who are the main contributors?')">
+                                Contributors
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" 
+                                    onclick="setResultQuery('Show me how authentication evolved')">
+                                Authentication
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" 
+                                    onclick="setResultQuery('What patterns were introduced?')">
+                                Patterns
+                            </button>
+                        </div>
+                        
+                        <div id="resultQueryResponse" class="mt-3" style="display: none;">
+                            <div class="alert alert-info">
+                                <h6 class="fw-bold">
+                                    <i class="fas fa-lightbulb me-2"></i>Response:
+                                </h6>
+                                <div id="resultQueryResult"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Visualizations Section -->
+<section class="py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="fw-bold mb-4">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Interactive Visualizations
+                </h2>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <!-- Code Ownership Visualization -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            Code Ownership & Activity Analysis
+                        </h5>
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <p class="text-muted mb-4">Interactive visualization showing code ownership by contributors, commit activity over time, and file ownership patterns</p>
+                        <a href="{{ url_for('serve_static', filename=results.ownership_chart.split('/')[-1]) }}" 
+                           target="_blank" 
+                           class="btn btn-info btn-lg">
+                            <i class="fas fa-external-link-alt me-2"></i>
+                            View Interactive Analysis
+                        </a>
+                        <div class="mt-3">
+                            <small class="text-muted">Opens in a new tab with interactive charts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Commit Patterns Section -->
+{% if results.commit_analysis and results.commit_analysis.pattern_counts %}
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="fw-bold mb-4">
+                    <i class="fas fa-code-branch me-2"></i>
+                    Commit Patterns
+                </h2>
+            </div>
+        </div>
+        
+        <div class="row g-3">
+            {% for pattern, count in results.commit_analysis.pattern_counts.items() %}
+            {% if count > 0 %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="display-6 fw-bold text-primary">{{ count }}</div>
+                        <div class="text-muted">{{ pattern.replace('_', ' ').title() }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Keywords Section -->
+{% if results.commit_analysis and results.commit_analysis.top_keywords %}
+<section class="py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="fw-bold mb-4">
+                    <i class="fas fa-tags me-2"></i>
+                    Top Keywords in Commits
+                </h2>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for keyword in results.commit_analysis.top_keywords[:15] %}
+                    <span class="badge bg-primary fs-6 px-3 py-2">{{ keyword }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Comprehensive Report Section -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-file-alt me-2"></i>
+                            Comprehensive Report
+                        </h4>
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <p class="mb-3">Download the complete analysis report with all insights and recommendations</p>
+                        <a href="{{ url_for('serve_static', filename=results.report.split('/')[-1]) }}" 
+                           target="_blank" 
+                           class="btn btn-success btn-lg">
+                            <i class="fas fa-download me-2"></i>
+                            Download Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Actions Section -->
+<section class="py-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-body text-center p-4">
+                        <h4 class="fw-bold mb-3">What's Next?</h4>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>
+                                Analyze Another Repository
+                            </a>
+                            <a href="{{ url_for('demo') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-play me-2"></i>
+                                Try Demo Examples
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="shareResults()">
+                                <i class="fas fa-share me-2"></i>
+                                Share Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function setResultQuery(query) {
+    document.getElementById('resultQueryInput').value = query;
+}
+
+function submitResultQuery() {
+    const query = document.getElementById('resultQueryInput').value;
+    if (!query.trim()) return;
+    
+    const responseDiv = document.getElementById('resultQueryResponse');
+    const resultDiv = document.getElementById('resultQueryResult');
+    
+    responseDiv.style.display = 'block';
+    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing query...';
+    
+    fetch('/api/query', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: query })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            resultDiv.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
+        } else {
+            resultDiv.innerHTML = `<pre class="mb-0 text-start">${data.response}</pre>`;
+        }
+        responseDiv.scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(error => {
+        resultDiv.innerHTML = `<div class="text-danger">Error: ${error.message}</div>`;
+    });
+}
+
+function shareResults() {
+    const url = window.location.href;
+    if (navigator.share) {
+        navigator.share({
+            title: 'Codebase Time Machine Analysis Results',
+            text: 'Check out this code evolution analysis!',
+            url: url
+        });
+    } else {
+        // Fallback - copy to clipboard
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Results URL copied to clipboard!');
+        });
+    }
+}
+
+// Auto-submit query on Enter
+document.getElementById('resultQueryInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        submitResultQuery();
+    }
+});
+</script>
+{% endblock %}

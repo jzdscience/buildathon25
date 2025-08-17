@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: Inter, system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+  }
+  
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+  
+  .card-body {
+    @apply px-6 py-4;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500;
+  }
+  
+  .btn-success {
+    @apply btn bg-success-600 text-white hover:bg-success-700 focus:ring-success-500;
+  }
+  
+  .btn-danger {
+    @apply btn bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500;
+  }
+  
+  .btn-outline {
+    @apply btn bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-primary-500;
+  }
+  
+  .status-indicator {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .status-positive {
+    @apply status-indicator bg-success-100 text-success-800;
+  }
+  
+  .status-negative {
+    @apply status-indicator bg-danger-100 text-danger-800;
+  }
+  
+  .status-neutral {
+    @apply status-indicator bg-gray-100 text-gray-800;
+  }
+  
+  .status-warning {
+    @apply status-indicator bg-warning-100 text-warning-800;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full hover:bg-gray-400;
+}
+
+/* Chart tooltips */
+.recharts-tooltip-wrapper {
+  @apply drop-shadow-lg;
+}
+
+.recharts-default-tooltip {
+  @apply bg-white border border-gray-200 rounded-lg shadow-lg;
+}
+
+/* Loading states */
+.loading-skeleton {
+  @apply animate-shimmer bg-gray-200 rounded;
+}
+
+/* Sentiment colors */
+.sentiment-very-positive {
+  @apply text-green-700 bg-green-50 border-green-200;
+}
+
+.sentiment-positive {
+  @apply text-green-600 bg-green-50 border-green-100;
+}
+
+.sentiment-neutral {
+  @apply text-gray-600 bg-gray-50 border-gray-200;
+}
+
+.sentiment-negative {
+  @apply text-orange-600 bg-orange-50 border-orange-200;
+}
+
+.sentiment-very-negative {
+  @apply text-red-700 bg-red-50 border-red-200;
+}
+
+/* Alert styles */
+.alert {
+  @apply p-4 rounded-md border-l-4;
+}
+
+.alert-info {
+  @apply alert bg-blue-50 border-blue-400 text-blue-800;
+}
+
+.alert-success {
+  @apply alert bg-green-50 border-green-400 text-green-800;
+}
+
+.alert-warning {
+  @apply alert bg-yellow-50 border-yellow-400 text-yellow-800;
+}
+
+.alert-error {
+  @apply alert bg-red-50 border-red-400 text-red-800;
+}
+

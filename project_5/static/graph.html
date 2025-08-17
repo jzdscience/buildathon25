@@ -1,0 +1,325 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#4ECDC4", "font": {"color": "white"}, "id": "NLP", "label": "NLP", "shape": "dot", "size": 14, "title": "\u003cb\u003eNLP\u003c/b\u003e\u003cbr\u003eType: ORG\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.1333\u003cbr\u003eConnections: 0 in, 2 out"}, {"color": "#FF6B6B", "font": {"color": "white"}, "id": "Graph", "label": "Graph", "shape": "dot", "size": 10, "title": "\u003cb\u003eGraph\u003c/b\u003e\u003cbr\u003eType: PERSON\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#FF6B6B", "font": {"color": "white"}, "id": "Question", "label": "Question", "shape": "dot", "size": 14, "title": "\u003cb\u003eQuestion\u003c/b\u003e\u003cbr\u003eType: PERSON\u003cbr\u003ePageRank: 0.0960\u003cbr\u003eDegree Centrality: 0.1333\u003cbr\u003eConnections: 1 in, 1 out"}, {"color": "#FF6B6B", "font": {"color": "white"}, "id": "Beautifulsoup4==4.12.2", "label": "Beautifulsoup4==4.12.2", "shape": "dot", "size": 10, "title": "\u003cb\u003eBeautifulsoup4==4.12.2\u003c/b\u003e\u003cbr\u003eType: PERSON\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#FF6B6B", "font": {"color": "white"}, "id": "Utilities", "label": "Utilities", "shape": "dot", "size": 12, "title": "\u003cb\u003eUtilities\u003c/b\u003e\u003cbr\u003eType: PERSON\u003cbr\u003ePageRank: 0.1335\u003cbr\u003eDegree Centrality: 0.0667\u003cbr\u003eConnections: 1 in, 0 out"}, {"color": "#A29BFE", "font": {"color": "white"}, "id": "Framework", "label": "Framework", "shape": "dot", "size": 12, "title": "\u003cb\u003eFramework\u003c/b\u003e\u003cbr\u003eType: TECH\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0667\u003cbr\u003eConnections: 0 in, 1 out"}, {"color": "#FFEAA7", "font": {"color": "white"}, "id": "# core nlp", "label": "# core nlp", "shape": "dot", "size": 10, "title": "\u003cb\u003e# core nlp\u003c/b\u003e\u003cbr\u003eType: CONCEPT\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#DFE6E9", "font": {"color": "white"}, "id": "Network libraries", "label": "Network libraries", "shape": "dot", "size": 10, "title": "\u003cb\u003eNetwork libraries\u003c/b\u003e\u003cbr\u003eType: NOUN_PHRASE\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#FFEAA7", "font": {"color": "white"}, "id": "Langchain==0.1.0", "label": "Langchain==0.1.0", "shape": "dot", "size": 10, "title": "\u003cb\u003eLangchain==0.1.0\u003c/b\u003e\u003cbr\u003eType: CONCEPT\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#DFE6E9", "font": {"color": "white"}, "id": "Colorama==0.4.6", "label": "Colorama==0.4.6", "shape": "dot", "size": 10, "title": "\u003cb\u003eColorama==0.4.6\u003c/b\u003e\u003cbr\u003eType: NOUN_PHRASE\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#DFE6E9", "font": {"color": "white"}, "id": "Python-dotenv==1.0.0 tqdm==4.66.1", "label": "Python-dotenv==1.0.0 tqdm==4.6...", "shape": "dot", "size": 10, "title": "\u003cb\u003ePython-dotenv==1.0.0 tqdm==4.66.1\u003c/b\u003e\u003cbr\u003eType: NOUN_PHRASE\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#DFE6E9", "font": {"color": "white"}, "id": "ML libraries", "label": "ML libraries", "shape": "dot", "size": 10, "title": "\u003cb\u003eML libraries\u003c/b\u003e\u003cbr\u003eType: NOUN_PHRASE\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#DFE6E9", "font": {"color": "white"}, "id": "Python-docx==1.1.0", "label": "Python-docx==1.1.0", "shape": "dot", "size": 10, "title": "\u003cb\u003ePython-docx==1.1.0\u003c/b\u003e\u003cbr\u003eType: NOUN_PHRASE\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#DFE6E9", "font": {"color": "white"}, "id": "Openai==1.6.1 #", "label": "Openai==1.6.1 #", "shape": "dot", "size": 10, "title": "\u003cb\u003eOpenai==1.6.1 #\u003c/b\u003e\u003cbr\u003eType: NOUN_PHRASE\u003cbr\u003ePageRank: 0.0519\u003cbr\u003eDegree Centrality: 0.0000\u003cbr\u003eConnections: 0 in, 0 out"}, {"color": "#74B9FF", "font": {"color": "white"}, "id": "Langchain==0.1.0 openai==1.6.1 #", "label": "Langchain==0.1.0 openai==1.6.1...", "shape": "dot", "size": 12, "title": "\u003cb\u003eLangchain==0.1.0 openai==1.6.1 #\u003c/b\u003e\u003cbr\u003eType: ENTITY\u003cbr\u003ePageRank: 0.0739\u003cbr\u003eDegree Centrality: 0.0667\u003cbr\u003eConnections: 1 in, 0 out"}, {"color": "#74B9FF", "font": {"color": "white"}, "id": "ML", "label": "ML", "shape": "dot", "size": 12, "title": "\u003cb\u003eML\u003c/b\u003e\u003cbr\u003eType: ENTITY\u003cbr\u003ePageRank: 0.0739\u003cbr\u003eDegree Centrality: 0.0667\u003cbr\u003eConnections: 1 in, 0 out"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#636e72", "from": "NLP", "label": "answer", "smooth": {"roundness": 0.2, "type": "curvedCW"}, "title": "answer", "to": "Langchain==0.1.0 openai==1.6.1 #"}, {"arrows": "to", "color": "#636e72", "from": "NLP", "label": "related_to", "smooth": {"roundness": 0.2, "type": "curvedCW"}, "title": "related_to", "to": "ML"}, {"arrows": "to", "color": "#636e72", "from": "Question", "label": "related_to", "smooth": {"roundness": 0.2, "type": "curvedCW"}, "title": "related_to", "to": "Utilities"}, {"arrows": "to", "color": "#636e72", "from": "Framework", "label": "related_to", "smooth": {"roundness": 0.2, "type": "curvedCW"}, "title": "related_to", "to": "Question"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"borderWidth": 2, "borderWidthSelected": 4, "font": {"size": 12, "face": "Tahoma"}}, "edges": {"color": {"inherit": false}, "smooth": {"type": "continuous"}, "font": {"size": 10, "align": "middle"}}, "physics": {"barnesHut": {"gravitationalConstant": -30000, "centralGravity": 0.3, "springLength": 95}, "maxVelocity": 50, "minVelocity": 0.1, "stabilization": {"enabled": true, "iterations": 200}}, "interaction": {"hover": true, "navigationButtons": true, "keyboard": {"enabled": true}, "multiselect": true, "dragView": true, "zoomView": true}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            #mynetwork {
+                border: 2px solid #333;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            }
+            .controls {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                background: rgba(255,255,255,0.95);
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                max-width: 300px;
+            }
+            .controls h3 {
+                margin-top: 0;
+                color: #333;
+                font-size: 18px;
+            }
+            .controls input {
+                width: 100%;
+                padding: 8px;
+                margin: 5px 0;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            .controls button {
+                padding: 8px 15px;
+                margin: 5px 5px 5px 0;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background 0.3s;
+            }
+            .controls button:hover {
+                background: #764ba2;
+            }
+            .legend {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: rgba(255,255,255,0.95);
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+            }
+            .legend h4 {
+                margin-top: 0;
+                color: #333;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                margin: 5px 0;
+                font-size: 14px;
+            }
+            .legend-color {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                margin-right: 8px;
+                border: 1px solid #333;
+            }
+            .info {
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                background: rgba(255,255,255,0.95);
+                padding: 10px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-size: 14px;
+            }
+        </style>
+        
+        <div class="controls">
+            <h3>Graph Controls</h3>
+            <input type="text" id="searchNode" placeholder="Search for a node...">
+            <button onclick="searchAndFocus()">Search</button>
+            <button onclick="resetZoom()">Reset View</button>
+            <button onclick="togglePhysics()">Toggle Physics</button>
+            <button onclick="fitNetwork()">Fit to Screen</button>
+        </div>
+        
+        <div class="legend">
+            <h4>Node Types</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FF6B6B;"></div>
+                <span>Person</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4ECDC4;"></div>
+                <span>Organization</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #45B7D1;"></div>
+                <span>Location</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FFEAA7;"></div>
+                <span>Concept</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #A29BFE;"></div>
+                <span>Technology</span>
+            </div>
+        </div>
+        
+        <div class="info" id="info">
+            <span id="nodeCount">Nodes: 0</span> | 
+            <span id="edgeCount">Edges: 0</span> | 
+            <span id="selectedInfo">Click on a node for details</span>
+        </div>
+        
+        <script>
+            var physicsEnabled = true;
+            
+            function searchAndFocus() {
+                var searchTerm = document.getElementById('searchNode').value.toLowerCase();
+                if (searchTerm) {
+                    var nodeId = null;
+                    network.body.data.nodes.forEach(function(node) {
+                        if (node.label.toLowerCase().includes(searchTerm)) {
+                            nodeId = node.id;
+                        }
+                    });
+                    
+                    if (nodeId) {
+                        network.selectNodes([nodeId]);
+                        network.focus(nodeId, {
+                            scale: 1.5,
+                            animation: {
+                                duration: 1000,
+                                easingFunction: 'easeInOutQuad'
+                            }
+                        });
+                    } else {
+                        alert('Node not found!');
+                    }
+                }
+            }
+            
+            function resetZoom() {
+                network.fit({
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInOutQuad'
+                    }
+                });
+            }
+            
+            function togglePhysics() {
+                physicsEnabled = !physicsEnabled;
+                network.setOptions({physics: {enabled: physicsEnabled}});
+            }
+            
+            function fitNetwork() {
+                network.fit();
+            }
+            
+            // Update info when network is ready
+            network.on("stabilizationIterationsDone", function () {
+                document.getElementById('nodeCount').innerText = 'Nodes: ' + network.body.data.nodes.length;
+                document.getElementById('edgeCount').innerText = 'Edges: ' + network.body.data.edges.length;
+            });
+            
+            // Show node info on click
+            network.on("click", function (params) {
+                if (params.nodes.length > 0) {
+                    var nodeId = params.nodes[0];
+                    var node = network.body.data.nodes.get(nodeId);
+                    document.getElementById('selectedInfo').innerText = 'Selected: ' + node.label;
+                }
+            });
+            
+            // Enable search on Enter key
+            document.getElementById('searchNode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchAndFocus();
+                }
+            });
+        </script>
+        </body>
+</html>

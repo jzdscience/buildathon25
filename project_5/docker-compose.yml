@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  knowledge-graph:
+    build: .
+    ports:
+      - "5000:8080"
+    environment:
+      - PORT=8080
+      - FLASK_ENV=development
+    volumes:
+      # Mount directories for persistence during development
+      - ./uploads:/app/uploads
+      - ./graphs:/app/graphs
+      - ./static:/app/static
+      # Mount source code for hot reload (optional, comment out for production-like testing)
+      # - ./src:/app/src
+      # - ./templates:/app/templates
+    restart: unless-stopped
+    # Increase memory limit if needed
+    mem_limit: 2g
+    cpus: "2.0"
+

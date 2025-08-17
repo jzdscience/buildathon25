@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice-to-Slide Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .title {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background-color: #f0f2ff;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .recording-controls {
+            margin: 20px 0;
+        }
+
+        .recording-indicator {
+            display: none;
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .recording-indicator.active {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .progress {
+            display: none;
+            margin: 30px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-align: left;
+        }
+
+        .results h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .result-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .result-link:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .transcript {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+            font-style: italic;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .error {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
+        }
+
+        .file-info {
+            display: none;
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .supported-formats {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .title {
+                font-size: 2em;
+            }
+
+            .result-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🎤 Voice-to-Slide Generator</h1>
+        <p class="subtitle">Transform your spoken ideas into professional presentations</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">
+                <strong>Click to upload</strong> or drag and drop your audio file here
+            </div>
+            <input type="file" id="audioFile" class="file-input" accept="audio/*">
+            <button type="button" class="btn" onclick="document.getElementById('audioFile').click()">
+                Choose Audio File
+            </button>
+        </div>
+
+        <div class="recording-controls">
+            <p style="margin-bottom: 15px; color: #666;">Or record audio directly:</p>
+            <button type="button" class="btn" id="recordBtn">🎙️ Start Recording</button>
+            <button type="button" class="btn" id="stopRecordBtn" style="display: none;" disabled>⏹️ Stop Recording</button>
+            <div class="recording-indicator" id="recordingIndicator">🔴 Recording in progress...</div>
+        </div>
+
+        <div class="file-info" id="fileInfo"></div>
+        <div class="error" id="errorMessage"></div>
+
+        <div class="progress" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Processing your audio...</div>
+        </div>
+
+        <div class="results" id="results">
+            <h3>🎉 Your presentation is ready!</h3>
+            <div class="result-links">
+                <a href="" id="htmlLink" class="result-link" target="_blank">📊 View HTML Presentation</a>
+                <a href="" id="pdfLink" class="result-link" target="_blank">📄 Download PDF</a>
+            </div>
+            <div class="transcript" id="transcriptDisplay"></div>
+        </div>
+
+        <div class="supported-formats">
+            <strong>Supported formats:</strong> MP3, WAV, M4A, OGG, WebM, MP4
+            <br>
+            <strong>Max file size:</strong> 50MB | <strong>Max duration:</strong> ~3 minutes recommended
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const audioFile = document.getElementById('audioFile');
+        const recordBtn = document.getElementById('recordBtn');
+        const stopRecordBtn = document.getElementById('stopRecordBtn');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        const fileInfo = document.getElementById('fileInfo');
+        const errorMessage = document.getElementById('errorMessage');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const results = document.getElementById('results');
+        const htmlLink = document.getElementById('htmlLink');
+        const pdfLink = document.getElementById('pdfLink');
+        const transcriptDisplay = document.getElementById('transcriptDisplay');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                audioFile.files = files;
+                handleFileSelect(files[0]);
+            }
+        });
+
+        audioFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            hideMessages();
+            if (validateFile(file)) {
+                showFileInfo(file);
+                uploadAndProcess(file);
+            }
+        }
+
+        function validateFile(file) {
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/ogg', 'audio/webm', 'video/mp4'];
+            
+            if (file.size > maxSize) {
+                showError('File size exceeds 50MB limit. Please choose a smaller file.');
+                return false;
+            }
+            
+            if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|ogg|webm|mp4)$/i)) {
+                showError('Unsupported file format. Please upload an audio file (MP3, WAV, M4A, OGG, WebM, MP4).');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function showFileInfo(file) {
+            const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+            fileInfo.innerHTML = `📁 Selected: ${file.name} (${sizeInMB} MB)`;
+            fileInfo.style.display = 'block';
+        }
+
+        async function uploadAndProcess(file) {
+            const formData = new FormData();
+            formData.append('audio', file);
+
+            showProgress('Uploading and processing audio...');
+            
+            try {
+                const response = await fetch('/api/upload-audio', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Upload failed');
+                }
+
+                showResults(result);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Processing failed: ' + error.message);
+            } finally {
+                hideProgress();
+            }
+        }
+
+        // Recording functionality
+        recordBtn.addEventListener('click', startRecording);
+        stopRecordBtn.addEventListener('click', stopRecording);
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
+                    handleFileSelect(audioFile);
+                    
+                    // Clean up
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                
+                recordBtn.style.display = 'none';
+                stopRecordBtn.style.display = 'inline-block';
+                stopRecordBtn.disabled = false;
+                recordingIndicator.classList.add('active');
+                
+                hideMessages();
+                
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                showError('Could not access microphone. Please ensure you have granted permission and try again.');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                
+                recordBtn.style.display = 'inline-block';
+                stopRecordBtn.style.display = 'none';
+                recordingIndicator.classList.remove('active');
+            }
+        }
+
+        function showProgress(text) {
+            progressText.textContent = text;
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 500);
+            
+            // Store interval for cleanup
+            progressContainer.dataset.interval = interval;
+        }
+
+        function hideProgress() {
+            const interval = progressContainer.dataset.interval;
+            if (interval) {
+                clearInterval(interval);
+            }
+            progressFill.style.width = '100%';
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+            }, 500);
+        }
+
+        function showResults(result) {
+            htmlLink.href = result.htmlUrl;
+            pdfLink.href = result.pdfUrl;
+            transcriptDisplay.innerHTML = `<strong>Transcript:</strong><br>${result.transcript}`;
+            
+            results.style.display = 'block';
+            
+            // Scroll to results
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            fileInfo.style.display = 'none';
+            results.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

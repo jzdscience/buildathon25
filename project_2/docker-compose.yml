@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  voice-to-slide:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      # Optional: Mount presentations directory to persist generated files locally
+      - ./presentations:/app/presentations
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+
+

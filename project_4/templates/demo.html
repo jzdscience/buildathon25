@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Demo - Codebase Time Machine{% endblock %}
+
+{% block content %}
+<!-- Demo Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="fw-bold mb-3">
+                    <i class="fas fa-play me-3"></i>
+                    Live Demo
+                </h1>
+                <p class="lead">
+                    Try the Codebase Time Machine with these pre-selected repositories
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Demo Repository Cards -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for repo in repos %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card demo-card h-100 border-0 shadow">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold">{{ repo.name }}</h5>
+                            <span class="badge bg-primary">{{ repo.size }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">{{ repo.description }}</p>
+                        <p class="small mb-3">
+                            <i class="fab fa-github me-2"></i>
+                            <code>{{ repo.url }}</code>
+                        </p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" 
+                                    onclick="startDemoAnalysis('{{ repo.url }}', false)">
+                                <i class="fas fa-play me-2"></i>
+                                Quick Analysis
+                            </button>
+                            <button class="btn btn-outline-primary" 
+                                    onclick="startDemoAnalysis('{{ repo.url }}', true)">
+                                <i class="fas fa-cogs me-2"></i>
+                                Full Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Custom Repository Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-plus me-2"></i>
+                            Analyze Your Own Repository
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="customAnalysisForm">
+                            <div class="mb-3">
+                                <label for="customRepoUrl" class="form-label fw-bold">
+                                    Repository URL
+                                </label>
+                                <input type="url" 
+                                       class="form-control form-control-lg" 
+                                       id="customRepoUrl" 
+                                       name="customRepoUrl"
+                                       placeholder="https://github.com/yourname/yourrepo.git"
+                                       required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="customFullAnalysis" name="customFullAnalysis">
+                                    <label class="form-check-label fw-bold" for="customFullAnalysis">
+                                        Full Analysis (includes code metrics)
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-rocket me-2"></i>
+                                    Analyze Custom Repository
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Analysis Status -->
+<section id="analysisStatus" class="py-5" style="display: none;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-cog fa-spin me-2"></i>
+                            Analysis in Progress
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="progress mb-3" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 id="demoProgress" 
+                                 role="progressbar" 
+                                 style="width: 0%"
+                                 aria-valuenow="0" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                0%
+                            </div>
+                        </div>
+                        <p id="demoProgressMessage" class="text-center mb-0">Starting analysis...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Query Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Try Interactive Queries
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="mb-3">
+                            After analyzing a repository, you can ask natural language questions about it:
+                        </p>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-warning w-100" 
+                                        onclick="demoQuery('Who are the main contributors?')">
+                                    <i class="fas fa-users me-2"></i>
+                                    Who contributed most?
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-warning w-100" 
+                                        onclick="demoQuery('Show me how authentication evolved')">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    How did auth evolve?
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-warning w-100" 
+                                        onclick="demoQuery('What patterns were introduced?')">
+                                    <i class="fas fa-code me-2"></i>
+                                    What patterns exist?
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="demoQueryInput" 
+                                       placeholder="Ask your own question...">
+                                <button class="btn btn-warning" type="button" onclick="customDemoQuery()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Query Response -->
+                        <div id="demoQueryResponse" class="mt-3" style="display: none;">
+                            <div class="alert alert-success">
+                                <h6 class="fw-bold">
+                                    <i class="fas fa-lightbulb me-2"></i>Response:
+                                </h6>
+                                <div id="demoQueryResult"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function analyzeRepo(repoUrl, fullAnalysis) {
+    // Show analysis status
+    document.getElementById('analysisStatus').style.display = 'block';
+    document.getElementById('analysisStatus').scrollIntoView({ behavior: 'smooth' });
+    
+    // Start analysis
+    startAnalysis(repoUrl, null, fullAnalysis);
+}
+
+function demoQuery(query) {
+    document.getElementById('demoQueryInput').value = query;
+    customDemoQuery();
+}
+
+function customDemoQuery() {
+    const query = document.getElementById('demoQueryInput').value;
+    if (!query.trim()) return;
+    
+    const responseDiv = document.getElementById('demoQueryResponse');
+    const resultDiv = document.getElementById('demoQueryResult');
+    
+    responseDiv.style.display = 'block';
+    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing query...';
+    
+    fetch('/api/query', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: query })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            resultDiv.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
+        } else {
+            resultDiv.innerHTML = `<pre class="mb-0">${data.response}</pre>`;
+        }
+    })
+    .catch(error => {
+        resultDiv.innerHTML = `<div class="text-danger">Error: ${error.message}</div>`;
+    });
+}
+
+// Handle custom analysis form
+document.getElementById('customAnalysisForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const repoUrl = document.getElementById('customRepoUrl').value;
+    const fullAnalysis = document.getElementById('customFullAnalysis').checked;
+    
+    analyzeRepo(repoUrl, fullAnalysis);
+});
+</script>
+{% endblock %}

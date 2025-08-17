@@ -1,0 +1,10 @@
+pytesseract
+Pillow
+opencv-python
+transformers
+torch
+sentence-transformers
+numpy
+scikit-learn
+flask
+werkzeug
